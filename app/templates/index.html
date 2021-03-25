@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>DevTalks Workshop</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/style/app.scss" media="all">
+</head>
+<body>
+<main id="login">
+    <header>WebSockets Workshop</header>
+    <form method="post" action="/app">
+        <label for="nickname">Nickname</label>
+        <input type="text" id="nickname" name="nickname" value="{{ nickname }}">
+        <button type="submit" class="primary">Connect</button>
+    </form>
+</main>
+
+<script>
+window.addEventListener('load', () => document.querySelector('#nickname').focus());
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>DevTalks Workshop</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/style/app.scss" media="all">
+</head>
+<body class="disconnected">
+<div id="background"></div>
+<div id="background2"></div>
+<div class="is-disconnected">
+    <h1>Disconnected</h1>
+    <p>
+        Follow the <a href="https://github.com/haroldiedema/websocket-workshop/blob/master/README.md" target="_blank">
+        instructions &amp; assignments</a> and implement the missing functionality in <code>/app/src/workshop-client.ts</code>
+    </p>
+    <div class="dc-error" style="display: none;"></div>
+</div>
+
+<div class="users shadow"></div>
+
+<div id="chat">
+    <div class="header">
+        <img src="/img/b7.svg">
+        <h1>DevTalks chat</h1>
+    </div>
+    <div class="wrapper">
+        <div class="content">
+            <div class="inner" id="chatContent"></div>
+        </div>
+        <div class="controls">
+            <input type="text" id="chatInput" placeholder="Message">
+            <button class="primary" id="chatInputBtn" style="margin-right: 5px;">Send</button>
+            <button class="secondary" onclick="location.href='/'">Leave</button>
+        </div>
+    </div>
+</div>
+
+<div class="users">
+    <div class="wrapper">
+        <div class="title">Online users (<span id="userCount">0</span>)</div>
+        <ul class="list" id="userList">
+        </ul>
+    </div>
+</div>
+
+<script type="module">
+import {WorkshopClient} from '/src/workshop-client.ts';
+
+const client = new WorkshopClient('{{ nickname }}');
+
+client.on('connected', () => document.body.classList.remove('disconnected'));
+client.on('disconnected', (err) => {
+    document.body.classList.add('disconnected');
+    if (err) {
+        document.querySelector('.dc-error').innerHTML = err;
+        document.querySelector('.dc-error').style.display = 'block';
+    } else {
+        document.querySelector('.dc-error').style.display = 'none';
+    }
+});
+
+const chatInput    = document.querySelector('#chatInput'),
+      chatInputBtn = document.querySelector('#chatInputBtn');
+
+chatInput.addEventListener('keyup', (e) => {
+    if (e.keyCode === 13) {
+        client.sendChatMessage(chatInput.value);
+        chatInput.value = '';
+    }
+});
+
+chatInputBtn.addEventListener('click', () => {
+    client.sendChatMessage(chatInput.value);
+    chatInput.value = '';
+});
+
+let mx = 0, my = 0, ox = 0, oy = 0, bg = document.querySelector('#background');
+window.addEventListener('mousemove', (e) => {
+    mx = e.clientX;
+    my = e.clientY;
+
+
+    const px = (( e.clientX / window.innerWidth ) * 2 - 1) * 16;
+    const py = (( e.clientY / window.innerHeight ) * 2 - 1) * 16;
+
+    bg.style.backgroundPositionX = px - 64 + 'px';
+    bg.style.backgroundPositionY = py - 64 + 'px';
+});
+
+const wrs = () => {
+    bg.style.backgroundSize = (window.innerWidth * 1.75) + 'px ' + (window.innerHeight * 1.5) + 'px';
+}
+window.addEventListener('resize', () => wrs());
+wrs();
+
+setInterval(() => {
+    if (ox !== mx || oy !== my) {
+        ox = mx;
+        oy = my;
+        client.sendMouseCoordinates(mx, my);
+    }
+}, 100);
+</script>
+</body>
+</html>
